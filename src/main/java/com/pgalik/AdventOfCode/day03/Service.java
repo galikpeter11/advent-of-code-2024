@@ -1,10 +1,10 @@
 package com.pgalik.AdventOfCode.day03;
 
-import com.pgalik.AdventOfCode.FileService;
-import lombok.RequiredArgsConstructor;
-
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import com.pgalik.AdventOfCode.FileService;
+
+import lombok.RequiredArgsConstructor;
 
 @org.springframework.stereotype.Service("day03Service")
 @RequiredArgsConstructor
@@ -44,17 +44,6 @@ public class Service {
         return String.valueOf(answer);
     }
 
-    private int getNumberAt(char[] input, int[] i) {
-        int result = 0;
-
-        while (Character.isDigit(input[i[0]])) {
-            result = result * 10 + (input[i[0]] - '0');
-            i[0]++;
-        }
-
-        return result;
-    }
-
     public String solveSecond() throws IOException {
         StringBuilder sb = new StringBuilder();
         fileService.readFileLines(INPUT_FILE).forEach(sb::append);
@@ -63,7 +52,17 @@ public class Service {
 
         int n = input.length;
         int answer = 0;
+        boolean enabled = true;
         for (int i = 0; i < n; i++) {
+            if (input[i] == 'd' && input[i + 1] == 'o' && input[i + 2] == '(' && input[i + 3] == ')') {
+                enabled = true;
+                i += 4;
+            }
+            if (input[i] == 'd' && input[i + 1] == 'o' && input[i + 2] == 'n' && input[i + 3] == '\'' && input[i + 4] == 't' && input[i + 5] == '('
+                && input[i + 6] == ')') {
+                enabled = false;
+                i += 7;
+            }
             if (input[i] == 'm') {
                 if (input[i + 1] == 'u' && input[i + 2] == 'l' && input[i + 3] == '(') {
                     i += 4;
@@ -77,7 +76,9 @@ public class Service {
                         i = ref2[0];
                         if (input[i] == ')') {
                             if (x != -1 && y != -1) {
-                                answer += x * y;
+                                if (enabled) {
+                                    answer += x * y;
+                                }
                             }
                         }
                     }
@@ -85,5 +86,16 @@ public class Service {
             }
         }
         return String.valueOf(answer);
+    }
+
+    private int getNumberAt(char[] input, int[] i) {
+        int result = 0;
+
+        while (Character.isDigit(input[i[0]])) {
+            result = result * 10 + (input[i[0]] - '0');
+            i[0]++;
+        }
+
+        return result;
     }
 }
