@@ -12,208 +12,87 @@ import lombok.RequiredArgsConstructor;
 public class Service {
     public static final String INPUT_FILE = "inputs/day04.txt";
     private final FileService fileService;
+    private static final char[] TARGET_WORD = {'M', 'A', 'S'};
+    private static final int[][] DIRECTIONS = {
+        {0, 1}, {1, 0}, {1, 1}, {1, -1}, // right, down, down-right, down-left
+        {0, -1}, {-1, 0}, {-1, -1}, {-1, 1} // left, up, up-left, up-right
+    };
 
     public String solveFirst() throws IOException {
         List<String> lines = fileService.readFileLines(INPUT_FILE);
-        char[][] input = new char[lines.size()][lines.getFirst().length()];
-        for (int i = 0; i < lines.size(); i++) {
-            for (int j = 0; j < lines.get(i).length(); j++) {
-                input[i][j] = lines.get(i).charAt(j);
-            }
-        }
+        char[][] grid = lines.stream()
+            .map(String::toCharArray)
+            .toArray(char[][]::new);
 
-        int result = 0;
-
-        for (int i = 0; i < lines.size(); i++) {
-            for (int j = 0; j < lines.get(i).length(); j++) {
-                if (input[i][j] == 'X') {
-                    result += countHorizontalMatch(input, i, j);
-                    result += countVerticalMatch(input, i, j);
-                    result += countDiagonalMatch(input, i, j);
+        int count = 0;
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[i].length; j++) {
+                if (grid[i][j] == 'X') {
+                    count += countMatches(grid, i, j);
                 }
             }
         }
-
-        return String.valueOf(result);
+        return String.valueOf(count);
     }
 
-    private int countHorizontalMatch(char[][] input, int i, int j) {
-        int result = 0;
-        try {
-            // Left to right
-            if (input[i][j + 1] == 'M') {
-                if (input[i][j + 2] == 'A') {
-                    if (input[i][j + 3] == 'S') {
-                        result++;
-                    }
-                }
-            }
-        } catch (IndexOutOfBoundsException e) {
-            // Do nothing
+    private int countMatches(char[][] grid, int row, int col) {
+        int count = 0;
+        for (int[] dir : DIRECTIONS) {
+            count += checkDirection(grid, row, col, dir[0], dir[1]);
+            count += checkDirection(grid, row, col, -dir[0], -dir[1]); // Check opposite direction
         }
-
-        try {
-            // Right to left
-            if (input[i][j - 1] == 'M') {
-                if (input[i][j - 2] == 'A') {
-                    if (input[i][j - 3] == 'S') {
-                        result++;
-                    }
-                }
-            }
-        } catch (IndexOutOfBoundsException e) {
-            // Do nothing
-        }
-
-        return result;
+        return count;
     }
 
-    private int countVerticalMatch(char[][] input, int i, int j) {
-        int result = 0;
-
-        try {
-            // Top to bottom
-            if (input[i + 1][j] == 'M') {
-                if (input[i + 2][j] == 'A') {
-                    if (input[i + 3][j] == 'S') {
-                        result++;
-                    }
-                }
+    private int checkDirection(char[][] grid, int row, int col, int rowInc, int colInc) {
+        for (int k = 1; k < TARGET_WORD.length; k++) {
+            int newRow = row + k * rowInc;
+            int newCol = col + k * colInc;
+            if (newRow < 0 || newRow >= grid.length || newCol < 0 || newCol >= grid[0].length || grid[newRow][newCol] != TARGET_WORD[k]) {
+                return 0;
             }
-
-        } catch (IndexOutOfBoundsException e) {
-            // Do nothing
         }
-        try {
-            // Bottom to top
-            if (input[i - 1][j] == 'M') {
-                if (input[i - 2][j] == 'A') {
-                    if (input[i - 3][j] == 'S') {
-                        result++;
-                    }
-                }
-            }
-        } catch (IndexOutOfBoundsException e) {
-            // Do nothing
-        }
-
-        return result;
-    }
-
-    private int countDiagonalMatch(char[][] input, int i, int j) {
-        int result = 0;
-        try {
-            // Left top to right bottom
-            if (input[i + 1][j + 1] == 'M') {
-                if (input[i + 2][j + 2] == 'A') {
-                    if (input[i + 3][j + 3] == 'S') {
-                        result++;
-                    }
-                }
-            }
-        } catch (IndexOutOfBoundsException e) {
-            // Do nothing
-        }
-        try {
-            // Left top to right bottom
-            if (input[i + 1][j - 1] == 'M') {
-                if (input[i + 2][j - 2] == 'A') {
-                    if (input[i + 3][j - 3] == 'S') {
-                        result++;
-                    }
-                }
-            }
-        } catch (IndexOutOfBoundsException e) {
-            // Do nothing
-        }
-        try {
-            // Left top to right bottom
-            if (input[i - 1][j + 1] == 'M') {
-                if (input[i - 2][j + 2] == 'A') {
-                    if (input[i - 3][j + 3] == 'S') {
-                        result++;
-                    }
-                }
-            }
-        } catch (IndexOutOfBoundsException e) {
-            // Do nothing
-        }
-        try {
-            // Left top to right bottom
-            if (input[i - 1][j - 1] == 'M') {
-                if (input[i - 2][j - 2] == 'A') {
-                    if (input[i - 3][j - 3] == 'S') {
-                        result++;
-                    }
-                }
-            }
-        } catch (IndexOutOfBoundsException e) {
-            // Do nothing
-        }
-
-        return result;
+        return 1;
     }
 
     public String solveSecond() throws IOException {
         List<String> lines = fileService.readFileLines(INPUT_FILE);
-        char[][] input = new char[lines.size()][lines.getFirst().length()];
-        for (int i = 0; i < lines.size(); i++) {
-            for (int j = 0; j < lines.get(i).length(); j++) {
-                input[i][j] = lines.get(i).charAt(j);
-            }
-        }
+        char[][] grid = lines.stream()
+            .map(String::toCharArray)
+            .toArray(char[][]::new);
 
-        int result = 0;
-
-        for (int i = 0; i < lines.size(); i++) {
-            for (int j = 0; j < lines.get(i).length(); j++) {
-                if (input[i][j] == 'A') {
-                    try {
-                        if (input[i - 1][j - 1] == 'M'
-                            && input[i + 1][j - 1] == 'M'
-                            && input[i + 1][j + 1] == 'S'
-                            && input[i - 1][j + 1] == 'S'
-                        ) {
-                            result++;
-                        }
-                    } catch (IndexOutOfBoundsException e) {
-                        // Do nothing
-                    }try{
-                            if (input[i - 1][j - 1] == 'S'
-                            && input[i + 1][j - 1] == 'M'
-                            && input[i + 1][j + 1] == 'M'
-                            && input[i - 1][j + 1] == 'S'
-                        ) {
-                        result++;
-                    }
-                } catch (IndexOutOfBoundsException e) {
-                    // Do nothing
-                }try{
-                            if(input[i - 1][j - 1] == 'S'
-                            && input[i + 1][j - 1] == 'S'
-                            && input[i + 1][j + 1] == 'M'
-                            && input[i - 1][j + 1] == 'M'
-                        ) {
-                    result++;
-                }
-            } catch (IndexOutOfBoundsException e) {
-                // Do nothing
-            }
-                            try{ if (input[i - 1][j - 1] == 'M'
-                            && input[i + 1][j - 1] == 'S'
-                            && input[i + 1][j + 1] == 'S'
-                            && input[i - 1][j + 1] == 'M'
-                        ) {
-                            result++;
-                        }
-                    } catch (IndexOutOfBoundsException e) {
-                        // Do nothing
-                    }
+        int count = 0;
+        for (int i = 1; i < grid.length - 1; i++) {
+            for (int j = 1; j < grid[i].length - 1; j++) {
+                if (grid[i][j] == 'A') {
+                    count += checkXMASPattern(grid, i, j);
                 }
             }
         }
+        return String.valueOf(count);
+    }
 
-        return String.valueOf(result);
+    private int checkXMASPattern(char[][] grid, int row, int col) {
+        // Check all rotations of the X-MAS pattern
+        if (isXMAS(grid, row, col, 1, 0) && isXMAS(grid, row, col, 0, 1)) {
+            return 1;
+        }
+        if (isXMAS(grid, row, col, 1, 0) && isXMAS(grid, row, col, 0, -1)) {
+            return 1;
+        }
+        if (isXMAS(grid, row, col, -1, 0) && isXMAS(grid, row, col, 0, 1)) {
+            return 1;
+        }
+        if (isXMAS(grid, row, col, -1, 0) && isXMAS(grid, row, col, 0, -1)) {
+            return 1;
+        }
+        return 0;
+    }
+
+    private boolean isXMAS(char[][] grid, int row, int col, int rowInc, int colInc) {
+        char first = grid[row + rowInc][col + colInc];
+        char second = grid[row - rowInc][col - colInc];
+        return (first == 'M' && second == 'S') || (first == 'S' && second == 'M');
     }
 
 }
