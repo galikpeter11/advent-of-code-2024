@@ -1,52 +1,18 @@
-package com.pgalik.AdventOfCode.day03;
+package day03;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
-import com.pgalik.AdventOfCode.FileService;
+public class Part2 {
+    public static void main(String[] args) throws IOException {
 
-import lombok.RequiredArgsConstructor;
-
-@org.springframework.stereotype.Service("day03Service")
-@RequiredArgsConstructor
-public class Service {
-    public static final String INPUT_FILE = "inputs/day03.txt";
-    private final FileService fileService;
-
-    public String solveFirst() throws IOException {
+        BufferedReader f = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
-        fileService.readFileLines(INPUT_FILE).forEach(sb::append);
-        sb.append("##########################");
-        char[] input = sb.toString().toCharArray();
-
-        int n = input.length;
-        int answer = 0;
-        for (int i = 0; i < n; i++) {
-            if (input[i] == 'm') {
-                if (input[i + 1] == 'u' && input[i + 2] == 'l' && input[i + 3] == '(') {
-                    i += 4;
-                    int[] ref1 = {i};
-                    int x = getNumberAt(input, ref1);
-                    i = ref1[0];
-                    if (input[i] == ',') {
-                        i += 1;
-                        int[] ref2 = {i};
-                        int y = getNumberAt(input, ref2);
-                        i = ref2[0];
-                        if (input[i] == ')') {
-                            if (x != -1 && y != -1) {
-                                answer += x * y;
-                            }
-                        }
-                    }
-                }
-            }
+        String line;
+        while ((line = f.readLine()) != null) {
+            sb.append(line);
         }
-        return String.valueOf(answer);
-    }
-
-    public String solveSecond() throws IOException {
-        StringBuilder sb = new StringBuilder();
-        fileService.readFileLines(INPUT_FILE).forEach(sb::append);
         sb.append("##########################");
         char[] input = sb.toString().toCharArray();
 
@@ -85,10 +51,11 @@ public class Service {
                 }
             }
         }
-        return String.valueOf(answer);
+
+        System.out.println(answer);
     }
 
-    private int getNumberAt(char[] input, int[] i) {
+    private static int getNumberAt(char[] input, int[] i) {
         int result = 0;
 
         while (Character.isDigit(input[i[0]])) {

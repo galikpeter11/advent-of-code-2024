@@ -1,20 +1,14 @@
-package com.pgalik.AdventOfCode.day02;
-
-import com.pgalik.AdventOfCode.FileService;
-import lombok.RequiredArgsConstructor;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.stream.IntStream;
+package day02;
 
 import static java.lang.Math.abs;
 
-@org.springframework.stereotype.Service("day02Service")
-@RequiredArgsConstructor
-public class Service {
-    public static final String INPUT_FILE = "inputs/day02.txt";
-    private final FileService fileService;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.stream.IntStream;
 
+public class Part2 {
     private static boolean check(int[] a) {
         int k = a.length - 1;
         boolean ok = true;
@@ -36,30 +30,15 @@ public class Service {
     }
 
     private static boolean checkWithRemovingElement(int[] arr, int index) {
-        return check(IntStream.range(0, arr.length)
-                .filter(i -> i != index)
-                .map(i -> arr[i])
-                .toArray());
+        return check(IntStream.range(0, arr.length).filter(i -> i != index).map(i -> arr[i]).toArray());
     }
 
-    public String solveFirst() throws IOException {
+    public static void main(String[] args) throws IOException {
         long result = 0L;
 
-        for (String line : fileService.readFileLines(INPUT_FILE)) {
-            int[] a = Arrays.stream(line.split(" ")).mapToInt(Integer::parseInt).toArray();
-
-            if (check(a)) {
-                result++;
-            }
-        }
-
-        return Long.toString(result);
-    }
-
-    public String solveSecond() throws IOException {
-        long result = 0L;
-
-        for (String line : fileService.readFileLines(INPUT_FILE)) {
+        BufferedReader f = new BufferedReader(new InputStreamReader(System.in));
+        String line;
+        while ((line = f.readLine()) != null) {
             int[] a = Arrays.stream(line.split(" ")).mapToInt(Integer::parseInt).toArray();
             boolean anyOk = false;
             int k = a.length - 1;
@@ -87,6 +66,6 @@ public class Service {
             }
         }
 
-        return Long.toString(result);
+        System.out.println(result);
     }
 }
