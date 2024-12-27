@@ -10,78 +10,51 @@ public class Part1 {
 
     public static void main(String[] args) throws IOException {
         BufferedReader f = new BufferedReader(new InputStreamReader(System.in));
+        String line;
+        List<String> lines = new ArrayList<>();
+        while ((line = f.readLine()) != null) {
+            lines.add(line);
+        }
 
-        // Read the input, which is a single long disk map line
-        String input = f.readLine();
+        char[][] grid = lines.stream().map(String::toCharArray).toArray(char[][]::new);
 
-        // Generate the initial disk map
-        List<Integer> diskMap = generateDiskMap(input);
+        int rows = grid.length;
+        int cols = grid[0].length;
 
-        // Compact the disk map
-        defragmentDiskMap(diskMap);
+        int result = 0;
 
-        // Calculate the checksum of the compacted disk map
-        long checksum = calculateChecksum(diskMap);
-        System.out.println("Checksum: " + checksum);
-    }
-
-    // Parses the input string into a list representing the disk layout
-    private static List<Integer> generateDiskMap(String input) {
-        List<Integer> diskMap = new ArrayList<>();
-        int currentFileId = 0;
-
-        for (int i = 0; i < input.length(); i++) {
-            int blockSize = Character.getNumericValue(input.charAt(i));
-            if (i % 2 == 0) { // For file blocks
-                for (int j = 0; j < blockSize; j++) {
-                    diskMap.add(currentFileId); // Add file block with ID
-                }
-                currentFileId++; // Increment file ID for the next file
-            } else { // For free space blocks
-                for (int j = 0; j < blockSize; j++) {
-                    diskMap.add(-1); // Add free space
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (grid[i][j] == '0') {
+                    boolean[][] visited = new boolean[rows][cols];
+                    int score = dfs(grid, i, j, '0', visited);
+                    System.out.println("Score at " + i + " " + j + " is " + score);
+                    result += score;
                 }
             }
         }
 
-        return diskMap;
+        System.out.println(result);
     }
 
-    // Compacts the disk map by moving file blocks one step to the left per iteration
-    private static void defragmentDiskMap(List<Integer> diskMap) {
-        int left = 0;
-        int right = diskMap.size() - 1;
+    private static int[][] directions = new int[][] { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
 
-        while (left < right) {
-            // Find the first empty block from the left
-            while (left < right && diskMap.get(left) != -1) {
-                left++;
-            }
-
-            // Find the first file block from the right
-            while (left < right && diskMap.get(right) == -1) {
-                right--;
-            }
-
-            // Swap the file block with the free space block
-            if (left < right) {
-                diskMap.set(left, diskMap.get(right));
-                diskMap.set(right, -1);
-            }
-        }
-    }
-
-    // Calculates the checksum of the compacted disk
-    private static long calculateChecksum(List<Integer> diskMap) {
-        long checksum = 0;
-
-        for (int position = 0; position < diskMap.size(); position++) {
-            Integer block = diskMap.get(position);
-            if (!block.equals(-1)) { // Skip free spaces
-                checksum += (long) position * block; // Multiply position by file ID
-            }
+    private static int dfs(char[][] grid, int i, int j, char target, boolean[][] visited) {
+        if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length || grid[i][j] != target || visited[i][j]) {
+            return 0;
         }
 
-        return checksum;
+        visited[i][j] = true;
+
+        if (target == '9') {
+            return 1;
+        }
+
+        int score = 0;
+        for (int[] dir : directions) {
+            score += dfs(grid, i + dir[0], j + dir[1], (char) (target + 1), visited);
+        }
+
+        return score;
     }
 }
