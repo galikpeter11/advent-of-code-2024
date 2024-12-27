@@ -27,7 +27,6 @@ public class Part2 {
             for (int j = 0; j < cols; j++) {
                 if (grid[i][j] == '0') {
                     int score = dfs(grid, i, j, '0');
-                    System.out.println("Score at " + i + " " + j + " is " + score);
                     result += score;
                 }
             }

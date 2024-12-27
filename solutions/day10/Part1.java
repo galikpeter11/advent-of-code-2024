@@ -28,7 +28,6 @@ public class Part1 {
                 if (grid[i][j] == '0') {
                     boolean[][] visited = new boolean[rows][cols];
                     int score = dfs(grid, i, j, '0', visited);
-                    System.out.println("Score at " + i + " " + j + " is " + score);
                     result += score;
                 }
             }
